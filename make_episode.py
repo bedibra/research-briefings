@@ -27,6 +27,7 @@ INDEX = DOCS / "episodes.json"
 
 
 def clean_for_speech(text: str) -> str:
+    text = re.sub(r"<!--.*?-->", "", text, flags=re.S)       # hidden notes/sources
     text = re.sub(r"^#+\s*", "", text, flags=re.M)          # headings
     text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)     # links -> text
     text = re.sub(r"https?://\S+", "", text)                 # bare urls
@@ -40,9 +41,41 @@ def slugify(s: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")[:60]
 
 
+def chunk_text(text: str, max_chars: int = 2500) -> list:
+    chunks, current = [], ""
+    for para in text.split("\n\n"):
+        if current and len(current) + len(para) > max_chars:
+            chunks.append(current)
+            current = ""
+        current = f"{current}\n\n{para}" if current else para
+    if current:
+        chunks.append(current)
+    return chunks
+
+
+async def synthesize_chunk(text: str, attempts: int = 4) -> bytes:
+    for attempt in range(1, attempts + 1):
+        try:
+            audio = bytearray()
+            tts = edge_tts.Communicate(text, CONFIG["voice"], rate=CONFIG.get("rate", "+0%"))
+            async for msg in tts.stream():
+                if msg["type"] == "audio":
+                    audio.extend(msg["data"])
+            if audio:
+                return bytes(audio)
+        except Exception as exc:  # network hiccups / NoAudioReceived
+            print(f"  attempt {attempt} failed: {exc}")
+        await asyncio.sleep(3 * attempt)
+    raise RuntimeError("Text-to-speech failed after retries")
+
+
 async def synthesize(text: str, out: Path) -> None:
-    tts = edge_tts.Communicate(text, CONFIG["voice"], rate=CONFIG.get("rate", "+0%"))
-    await tts.save(str(out))
+    chunks = chunk_text(text)
+    audio = bytearray()
+    for i, chunk in enumerate(chunks, 1):
+        print(f"  part {i}/{len(chunks)}")
+        audio.extend(await synthesize_chunk(chunk))
+    out.write_bytes(bytes(audio))
 
 
 def build_feed(episodes: list) -> str:
