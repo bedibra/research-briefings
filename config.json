@@ -1,0 +1,9 @@
+{
+  "podcast_title": "My Research Briefings",
+  "podcast_description": "Private AI-researched audio briefings on topics I choose.",
+  "author": "Research Briefings",
+  "language": "en",
+  "voice": "en-US-AndrewNeural",
+  "rate": "+0%",
+  "base_url": "https://YOUR-GITHUB-USERNAME.github.io/research-briefings"
+}

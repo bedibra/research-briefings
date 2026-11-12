@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+  <channel>
+    <title>My Research Briefings</title>
+    <link>https://YOUR-GITHUB-USERNAME.github.io/research-briefings/</link>
+    <description>Private AI-researched audio briefings on topics I choose.</description>
+    <language>en</language>
+    <itunes:author>Research Briefings</itunes:author>
+    <itunes:image href="https://YOUR-GITHUB-USERNAME.github.io/research-briefings/cover.png"/>
+    <itunes:category text="Education"/>
+    <itunes:explicit>false</itunes:explicit>
+    <itunes:block>Yes</itunes:block>
+    <item>
+      <title>Welcome to Research Briefings</title>
+      <description>A short test episode explaining how this feed works.</description>
+      <guid isPermaLink="false">2026-11-12-welcome-to-research-briefings.mp3</guid>
+      <pubDate>Thu, 12 Nov 2026 10:50:14 +0000</pubDate>
+      <enclosure url="https://YOUR-GITHUB-USERNAME.github.io/research-briefings/episodes/2026-11-12-welcome-to-research-briefings.mp3" length="224784" type="audio/mpeg"/>
+      <itunes:duration>37</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+  </channel>
+</rss>
