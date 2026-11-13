@@ -41,7 +41,7 @@ def slugify(s: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")[:60]
 
 
-def chunk_text(text: str, max_chars: int = 2500) -> list:
+def chunk_text(text: str, max_chars: int = 1200) -> list:
     chunks, current = [], ""
     for para in text.split("\n\n"):
         if current and len(current) + len(para) > max_chars:
@@ -53,7 +53,7 @@ def chunk_text(text: str, max_chars: int = 2500) -> list:
     return chunks
 
 
-async def synthesize_chunk(text: str, attempts: int = 4) -> bytes:
+async def synthesize_chunk(text: str, attempts: int = 10) -> bytes:
     for attempt in range(1, attempts + 1):
         try:
             audio = bytearray()
@@ -65,7 +65,7 @@ async def synthesize_chunk(text: str, attempts: int = 4) -> bytes:
                 return bytes(audio)
         except Exception as exc:  # network hiccups / NoAudioReceived
             print(f"  attempt {attempt} failed: {exc}")
-        await asyncio.sleep(3 * attempt)
+        await asyncio.sleep(min(5 * attempt, 30))
     raise RuntimeError("Text-to-speech failed after retries")
 
 
@@ -75,6 +75,7 @@ async def synthesize(text: str, out: Path) -> None:
     for i, chunk in enumerate(chunks, 1):
         print(f"  part {i}/{len(chunks)}")
         audio.extend(await synthesize_chunk(chunk))
+        await asyncio.sleep(1)
     out.write_bytes(bytes(audio))
 
 

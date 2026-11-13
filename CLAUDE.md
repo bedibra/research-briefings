@@ -25,3 +25,6 @@ When the user asks for an episode/briefing/podcast on a topic, do this:
 Settings (voice, speed, feed title, base URL) are in `config.json`.
 Good voices: en-US-AndrewNeural, en-US-AvaNeural, en-GB-RyanNeural,
 en-US-BrianNeural, en-US-EmmaNeural (`py -m edge_tts --list-voices`).
+
+## Topic scope
+When suggesting topics, keep every proposal corporate-world related: leadership, career growth, office politics, workplace dynamics, management (pharma-corporate framing welcome). No science, health, history, travel or personal-finance topics unless the user asks.
