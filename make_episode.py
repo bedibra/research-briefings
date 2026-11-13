@@ -8,6 +8,7 @@ are stripped before speaking. Output goes to docs/episodes/, and docs/feed.xml
 is regenerated from docs/episodes.json.
 """
 import asyncio
+import hashlib
 import json
 import re
 import sys
@@ -53,7 +54,23 @@ def chunk_text(text: str, max_chars: int = 1200) -> list:
     return chunks
 
 
+CACHE = ROOT / ".tts_cache"
+
+
 async def synthesize_chunk(text: str, attempts: int = 10) -> bytes:
+    """Speak one piece of text. Finished pieces are cached on disk, so a rerun
+    after the free service throttles us resumes instead of starting over."""
+    key = hashlib.sha256(f"{CONFIG['voice']}|{CONFIG.get('rate')}|{text}".encode()).hexdigest()
+    cached = CACHE / f"{key}.mp3"
+    if cached.exists():
+        return cached.read_bytes()
+    audio = await _speak_with_retries(text, attempts)
+    CACHE.mkdir(exist_ok=True)
+    cached.write_bytes(audio)
+    return audio
+
+
+async def _speak_with_retries(text: str, attempts: int) -> bytes:
     for attempt in range(1, attempts + 1):
         try:
             audio = bytearray()
@@ -65,7 +82,7 @@ async def synthesize_chunk(text: str, attempts: int = 10) -> bytes:
                 return bytes(audio)
         except Exception as exc:  # network hiccups / NoAudioReceived
             print(f"  attempt {attempt} failed: {exc}")
-        await asyncio.sleep(min(5 * attempt, 30))
+        await asyncio.sleep(min(10 * attempt, 60))  # throttling needs long pauses
     raise RuntimeError("Text-to-speech failed after retries")
 
 

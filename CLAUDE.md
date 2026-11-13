@@ -23,6 +23,7 @@ When the user asks for an episode/briefing/podcast on a topic, do this:
 5. Tell the user the title, duration, and 3–5 key sources.
 
 Settings (voice, speed, feed title, base URL) are in `config.json`.
+If TTS fails with "No audio was received", the free service is throttling: wait 10-20 min and rerun the same command (finished pieces are cached in .tts_cache/).
 Good voices: en-US-AndrewNeural, en-US-AvaNeural, en-GB-RyanNeural,
 en-US-BrianNeural, en-US-EmmaNeural (`py -m edge_tts --list-voices`).
 
